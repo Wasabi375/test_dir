@@ -60,7 +60,7 @@ impl TempDir {
     }
 
     /// Try to create a temporary directory with a given path inside the current directory.
-    pub fn current(path: &Path) -> std::io::Result<Self> {
+    pub fn current(path: impl AsRef<Path>) -> std::io::Result<Self> {
         let mut temp = std::env::current_dir()?.to_path_buf();
         temp.push(path);
         TempDir::create(temp.as_path())
@@ -79,7 +79,8 @@ impl TempDir {
     }
 
     // Helper functions
-    fn create(path: &Path) -> std::io::Result<Self> {
+    fn create(path: impl AsRef<Path>) -> std::io::Result<Self> {
+        let path = path.as_ref();
         let mut p = path;
         while let Some(ppath) = p.parent() {
             if ppath.exists() {
@@ -156,8 +157,7 @@ impl TestDir {
     }
 
     /// Creates if possible a temporary directory specified in `path` relative to the current directory
-    pub fn current(path: &str) -> Self {
-        let path = Path::new(path);
+    pub fn current(path: impl AsRef<Path>) -> Self {
         if let Ok(tempdir) = TempDir::current(path) {
             TestDir::new(tempdir)
         } else {
@@ -176,7 +176,7 @@ impl TestDir {
     }
 
     /*
-    fn load(&mut self, path: &Path) {
+    fn load(&mut self, path: impl AsRef<Path>) {
 
     }
     */
@@ -199,7 +199,7 @@ impl TestDir {
         }
     }
 
-    fn create_dir(&mut self, path: &Path) -> std::io::Result<()> {
+    fn create_dir(&mut self, path: impl AsRef<Path>) -> std::io::Result<()> {
         let mut build_path = self.root.clone();
         build_path.push(path);
         let result = fs::create_dir_all(build_path.as_path());
@@ -209,7 +209,7 @@ impl TestDir {
         result
     }
 
-    fn create_file(&mut self, path: &Path, filetype: FileType) -> std::io::Result<()> {
+    fn create_file(&mut self, path: impl AsRef<Path>, filetype: FileType) -> std::io::Result<()> {
         let mut build_path = self.root.clone();
         build_path.push(path);
         let file = fs::File::create(build_path.as_path());
@@ -241,7 +241,7 @@ impl TestDir {
         Ok(())
     }
 
-    fn remove_file(&mut self, path: &Path) -> std::io::Result<()> {
+    fn remove_file(&mut self, path: impl AsRef<Path>) -> std::io::Result<()> {
         let mut build_path = self.root.clone();
         build_path.push(path);
         if build_path.exists() {
